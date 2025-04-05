@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "demo.fullname" . }}
+spec:
+  serviceName: {{ include "demo.fullname" . }}-headless
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "demo.fullname" . }}
+  # updateStrategy:
+  #   type: RollingUpdate
+  # podManagementPolicy: OrderedReady
+  template:
+    metadata:
+      labels:
+        app: {{ include "demo.fullname" . }}
+    spec:
+      containers:
+        - name: kubernetes-demo
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          # resources:
+          #   requests:
+          #     memory: "500Mi"
+          #     cpu: "0.25"
+          ports:
+            - containerPort: {{ .Values.service.port }}
+              name: demo
+          volumeMounts:
+            - name: data-volume
+              mountPath: /app
+            - name: config
+              mountPath: /my-config
+              readOnly: true
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "demo.fullname" . }}-configmap
+        - name: data-volume
+          persistentVolumeClaim:
+            claimName: {{ include "demo.fullname" . }}-pvc
