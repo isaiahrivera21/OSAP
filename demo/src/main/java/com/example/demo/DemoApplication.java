@@ -11,5 +11,4 @@ public class DemoApplication {
 		System.out.println("Hello World!");
 		SpringApplication.run(DemoApplication.class, args);
 	}
-
 }
